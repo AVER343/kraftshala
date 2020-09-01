@@ -1,0 +1,24 @@
+import React from 'react';
+
+import {
+  GroupContainer,
+  FormInputContainer,
+  FormInputLabel
+} from './form-input.styles';
+
+const FormInput = ({ handleChange, label, ...props }) => (
+  
+<GroupContainer>
+    <FormInputContainer autoComplete="off" onChange={handleChange} {...props} />
+    {label ? (
+      <FormInputLabel  className={props.value ? 
+                                    props.value.length
+                                        ?'shrink':''
+                                    : ''}>
+        {label}
+      </FormInputLabel>
+    ) : null}
+  </GroupContainer>
+);
+
+export default FormInput;
