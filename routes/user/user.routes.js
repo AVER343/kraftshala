@@ -6,7 +6,11 @@ const User= require('../../models/user/user')
 router.post('/signup',async (req,res) => {
     let errors=[]
   try{ 
-    const {password,email,name} = req.body
+    const {password,email,name,confirmPassword} = req.body
+    if(password.toString()!==confirmPassword.toString())
+    {
+       errors.push({error:'Password and Confirm password needs to be same.'})
+    }
     if(password.toString().length<8)
     {
        errors.push({error:'Password needs to have more than 7 characters !'})
@@ -16,8 +20,9 @@ router.post('/signup',async (req,res) => {
     {
         errors.push({error:'Email already in use.'})
     }
-    if(errors){
-        return res.status(400).send({errors})    }
+    if(errors.length>0){
+        return res.status(400).send({errors})    
+        }
     const user = await new User({password,email,name})
     const token = await user.generateJWT()
     res.status(200).send({user,token})

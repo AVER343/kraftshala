@@ -62,22 +62,22 @@ export const asyncLogIn = (user) => {
   export const asyncSignUp= (user) => {
     return async (dispatch) => 
     {
-        const {name,email,password} = user
         try{
-            const res=await axios.post('http://localhost:7000/signup', {name,email,password})
+            const res=await axios.post('http://localhost:7000/signup', {...user})
             if(res.status===200)
             {         
                 await dispatch(ERROR_DELETING())
                 await dispatch(LoginSuccess(res.data))
             }
-            else{                
+            else{     
+                console.log(res.data)
                 dispatch(Logout());
             }
         }
         catch(e)
         {
             dispatch(ERROR_ADDING(e.response.data))
-            console.error(e)
+            console.error(e.response.data)
         }
     };
   };

@@ -12,8 +12,8 @@ const App= (props)=> {
 
  return (<div style={{size: '100%'}}>
     <Header/>
-    {props.errors?props.errors.errors.map((elem,idx)=> (<Alert key={idx} variant='danger' dismissible>
-    {elem.error}
+    {props.errors?props.errors.errors.map((elem,idx)=> (<Alert key={idx} variant='danger' onClose={()=>{console.log("close")}} dismissible>
+    <b>{elem.error}</b>
   </Alert>)):null}
     <Switch>
       <Route exact path='/' render={()=>props.currentUser?<HomePage/>:<Redirect to='/signin'/>}/>
