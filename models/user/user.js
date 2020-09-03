@@ -25,20 +25,25 @@ const UserSchema = new mongoose.Schema({
             }
         }
     },
-    tokens: [{
-        token: {
-            type: String,
-            required: true
-        }
-    }]
-})
+    meetings: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Meeting'
+            }]
+}, {
+  toObject: {
+    transform: function (doc, ret) {
+      delete ret._id;
+      delete ret.password;
+      delete ret.__v;
+    }
+  }
+  })
 UserSchema.methods.toJSON=function(){
     const user =this
     const userObject= user.toObject()
     delete userObject._id
     delete userObject.__v
     delete userObject.password
-    delete userObject.tokens
     return userObject
 }
 UserSchema.statics.findByCredentials=async function(email,password){
@@ -53,14 +58,12 @@ UserSchema.statics.findByCredentials=async function(email,password){
     catch(e){
         throw new Error('Invalid Credentials !')
     }
-  
 }
 UserSchema.methods.generateJWT =async function(){
     try
     {
         const user = this
         const JWToken =await jwt.sign({_id: user._id},`SECRET_KEY`)
-        user.tokens=user.tokens.concat({token:JWToken})
         await user.save()
         return JWToken
     }

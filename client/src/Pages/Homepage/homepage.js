@@ -1,29 +1,32 @@
 import React from 'react'
 import './homepage.styles.css'
+import axios from 'axios'
 import { Redirect, Link, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { render } from 'react-dom'
+import { getJWT } from '../../redux/users/users.utils'
+import TableComponent from '../../Components/table/table'
+import { requestMeetings } from '../../redux/meeting/meetings.actions'
 class HomePage  extends React.Component{
     constructor(props)
  {
    super(props)
    this.state={
-     page:1
+       meetings:[]
    }
  }
  async componentDidMount(){
-}
-handleChange=()=>{
-    this.setState({ page: this.state.page+1});
+    await this.props.requestMeetings()
 }
     render(){
-            return(this.props.currentUser?<div>{JSON.stringify(this.props.currentUser)}</div>:
-                <h1 className="center" style={{textAlign:'center'}}>    
-                    LOGIN TO  CONTINUE !
-                </h1>)
+            return(<div><TableComponent meetings={this.props.meetings}/></div>)
             }
 }
 const mapStateToProps=(state)=>({
-    currentUser:state.user
+    currentUser:state.user,
+    meetings:state.meetings.meetings
 })
-export default withRouter(connect(mapStateToProps)(HomePage))
+const dispatchStateToProps=dispatch=>({
+    requestMeetings:()=>{dispatch(requestMeetings())}
+})
+export default withRouter(connect(mapStateToProps,dispatchStateToProps)(HomePage))

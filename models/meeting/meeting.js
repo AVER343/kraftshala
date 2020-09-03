@@ -6,23 +6,24 @@ const meetingSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    completed: {
+    meetingTime: {
         type: Date,
         default: new Date()
     },
-    meetings: [{
+    people: [{
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User'
             }]
 }, {
     timestamps: true
 })
-Meeting.methods.toJSON=function(){
+meetingSchema.methods.toJSON=function(){
     const meeting =this
     const meetingObject= meeting.toObject()
     delete meetingObject.__v
     return meetingObject
 }
-const Meeting = mongoose.model('Meeting', MeetingSchema)
+
+const Meeting = mongoose.model('Meeting', meetingSchema)
 
 module.exports = Meeting

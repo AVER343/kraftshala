@@ -8,8 +8,8 @@ import HomePage from './Pages/Homepage/homepage';
 import SignUpPage from './Pages/SignUp/signup.component';
 import SignInPage from './Pages/SignIn/signInAndSignUp.component';
 import { ERROR_DELETING,ERROR_ADDING } from './redux/error/error.actions';
+import MeetingRoutingComponent from './Components/meetingRouting/meeting.component';
 const App= (props)=> { 
-
  return (<div style={{size: '100%'}}>
     <Header/>
     {props.errors?props.errors.errors.map((elem,idx)=> (<Alert key={idx} variant='danger' onClose={()=>{console.log("close")}} dismissible>
@@ -19,7 +19,7 @@ const App= (props)=> {
       <Route exact path='/' render={()=>props.currentUser?<HomePage/>:<Redirect to='/signin'/>}/>
       <Route exact path='/signin' render={()=>props.currentUser?<Redirect to='/'/>:<SignInPage/>}/>
       <Route exact path='/signup' render={()=>props.currentUser?<Redirect to='/'/>:<SignUpPage/>}/>
-      {/* <Route exact path='/tasks/update' component={} /> */}
+      <Route path='/meeting' render={()=>props.currentUser?<MeetingRoutingComponent/>:<SignUpPage/>}/>
     </Switch>
     </div>
   );

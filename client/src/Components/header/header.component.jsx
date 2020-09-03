@@ -12,6 +12,7 @@ import { asyncLogOut } from '../../redux/users/users.actions';
 const Header = (props) => (
   <HeaderContainer >
     <OptionsContainer >
+     {props.currentUser?<OptionLink to='/meeting/create'>Create Meeting</OptionLink>:null}
      {props.currentUser?null:<OptionLink to='/signup'>SIGN UP</OptionLink>}
       {props.currentUser?(
         <OptionLink as='div' onClick={() =>{props.LOGOUT(props.currentUser.token)}}>

@@ -2,6 +2,7 @@ const express = require('express')
 const router = new express.Router();
 const auth= require('../../middlewares/auth')
 const jwt = require('jsonwebtoken')
+const mongoose = require('mongoose')
 const User= require('../../models/user/user')
 router.post('/signup',async (req,res) => {
     let errors=[]
@@ -33,16 +34,18 @@ catch(e)
         res.status(400).send({errors:[{error:e.response.data}]})
     }
 })
-router.get('/me',auth,(req,res)=>{
-   res.send({user:req.user,token:req.token})
+router.get('/me',auth,async(req,res)=>{
+    
+    let userdetails =await User.findOne({_id:mongoose.Types.ObjectId(req.user._id)}).sort('meetings.meetingTime').populate({path:'meetings',select:'-__v -people'}).exec()
+     res.send({user:req.user,token:req.token,meetings:userdetails.meetings})
 })
 router.post('/login',async (req,res)=>{
     try
     {
-    const {email,password} = req.body
-    const user = await User.findByCredentials(email,password)
-    const token = await user.generateJWT()
-    res.send({user,token})
+        const {email,password} = req.body
+        const user = await User.findByCredentials(email,password)
+        const token = await user.generateJWT()
+        res.send({user,token})
     }
     catch(e)
     {
@@ -60,15 +63,17 @@ router.get('/all',async (req,res) =>{
    }
 })
 router.post('/logout',auth,async(req,res)=>{
-    req.user.tokens=req.user.tokens.filter(token=>token.token!=req.token)
     req.token=''
     await req.user.save()
     res.send({user:'',token:''})
 })
 router.post('/logout/all',auth,async (req,res)=>{
-    req.user.tokens=[]
     req.token=''
     await req.user.save()
     res.send({user:'',token:''})
+})
+router.get('/users',async(req,res)=>{
+    const users= await User.find({})
+    res.send(users.map(elem=>{return {email:elem.email,name:elem.name}}))
 })
 module.exports= router

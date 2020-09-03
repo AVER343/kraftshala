@@ -5,7 +5,7 @@ const auth =async (req,res,next)=>{
     {   
        const token = req.header('Authorization').replace('Bearer ','')
        const decodedUser =await jwt.verify(token,`SECRET_KEY`)
-       const user = await User.findOne({_id:decodedUser._id,'tokens.token':token})
+       const user = await User.findOne({_id:decodedUser._id},{meetings:0})
         if(!user)
         {
             throw new Error("UNAUTHORIZED!")
@@ -16,7 +16,15 @@ const auth =async (req,res,next)=>{
     }
     catch(e)
     {
-        res.status(400).send({errors:[{error:e.response.data}]})
+        let error=''
+        if(e.message)
+        {
+            error=e.message
+        }
+        else if(e.response){
+            error=e.response.data||''
+        }
+        res.status(400).send({errors:[{error:'Authentication Error!'}]})
     }
 }  
 module.exports=auth

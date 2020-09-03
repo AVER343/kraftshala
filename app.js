@@ -1,6 +1,7 @@
 const express =require('express')
 const app =express()
 const path =require('path')
+const meetingRouter = require('./routes/meetings/meetings.routes')
 require('./db/mongoose')
 const bodyParser=require('body-parser')
 const port = process.env.PORT || 7000;
@@ -10,6 +11,7 @@ app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(userRouter)
+app.use(meetingRouter)
 if(process.env.NODE_ENV==='production')
 {
     app.use(express.static('client/build'));
