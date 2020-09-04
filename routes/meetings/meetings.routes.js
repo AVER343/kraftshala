@@ -12,10 +12,14 @@ router.get('/meeting/all',auth,async(req,res)=>{
 router.post('/meeting',auth,async(req,res)=>{
   try{  
         const {description,emails,dated} = req.body
-        console.log(description,emails,dated)
+        
         if(!description||!emails||!dated)
         {
             return res.status(400).send({errors:[{error:'Empty fields are not allowed !'}]})
+        }
+        if(DateObj<Date.now())
+        {
+            return res.status(400).send({errors:[{error:'Cannot setup meetings in past.'}]})
         }
         let possible=true
         let meetingDetails=[]
@@ -44,12 +48,15 @@ router.post('/meeting',auth,async(req,res)=>{
                     possible=false;
                }
            }
-          else if(Date.parse(elem.meetingTime)>=DateObj)
+          else if(Date.parse(elem.meetingTime)>DateObj)
            {
                if(Date.parse(elem.meetingTime)-DateObj<3600000)
                {
                     possible=false
                }
+           }
+           else{
+               possible = false
            }
         })
         if(!possible){
@@ -59,7 +66,7 @@ router.post('/meeting',auth,async(req,res)=>{
         let meeting = new Meeting({description,meetingTime:DateObj,people:memberDetails})
         await meeting.save()
         //saving to meeting of each member in database
-         await Promise.all(meeting.people.map(async (elem) => {
+        await Promise.all(meeting.people.map(async (elem) => {
                                    const member= await User.findOne({_id:mongoose.Types.ObjectId(elem)});
                                     member.meetings.push(meeting._id)
                                    await member.save()
@@ -90,14 +97,14 @@ router.patch('/meeting/:id',auth,async(req,res)=>{
         let DateObj =Date.parse(dated)
         if(DateObj<Date.now())
         {
-            return res.send({errors:[{error:'Cannot setup meetings in past.'}]})
+            return res.status(400).send({errors:[{error:'Cannot setup meetings in past.'}]})
         }
         let meeting= await Meeting.findOne({_id})
         meeting.people=meeting.people.filter(elem=>elem!=req.user.id)
         const member= await User.findOne({_id:mongoose.Types.ObjectId(meeting.people[0].toString())});
         if(!member)
         {
-          return res.send({errors:[{error:'Email provided doesn\'t exists'}]})
+          return res.status(400).send({errors:[{error:'Email provided doesn\'t exists'}]})
         }
         memberDetails.push(`${member._id}`)        
 
@@ -127,6 +134,7 @@ router.patch('/meeting/:id',auth,async(req,res)=>{
             return res.status(400).send({errors:[{error:'Slot not available !'}]})
         }
         meeting= await Meeting.findOneAndUpdate({_id},{meetingTime:DateObj})
+        console.log(meeting)
         res.send({meeting})
     }
     catch(e){
